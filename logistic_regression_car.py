@@ -50,7 +50,8 @@ test_x = sc.transform(test_x)
 
 
 class LogisticRegression(object):
-    def __init__(self, eta = 10, n_iter = 5, random_state = 1):
+    def __init__(self, eta = 0.001, n_iter = 500, random_state = 1):
+        # COST = 100, 66% : eta = 0.001, n_iter = 500, random_state = 1
         self.eta = eta
         self.n_iter = n_iter
         self.random_state = random_state
@@ -69,11 +70,12 @@ class LogisticRegression(object):
             net_input = self.net_input(X)
             output = self.activation(net_input)
             errors = Y_array - output
-            self.w_[1:] += self.eta * X.T.dot(errors)  # shape of (4,1)
+            self.w_[1:] += self.eta * X.T.dot(errors)
             self.w_[0] += self.eta * errors.sum()
             # update cost
             cost = (-Y_array.dot(np.log(output)) - ((1 - Y_array).dot(np.log(1 - output))))
             self.cost_.append(cost)
+        # print(self.cost_[-1])
         return self
 
     def net_input(self,X):
@@ -98,7 +100,21 @@ for n_classes in range(len(reference)):
             Y[n] = 1
         else:
             Y[n] = 0
-    lr = LogisticRegression()
+
+    if n_classes == 0:
+        learning_rate = 0.00001
+        n = 10000
+    elif n_classes == 1:
+        learning_rate = 0.01
+        n = 1000
+    elif n_classes == 2:
+        learning_rate = 0.00001
+        n = 10000
+    else:
+        learning_rate = 0.01
+        n = 1000
+
+    lr = LogisticRegression() #eta = learning_rate, n_iter = n)
     lr.fit(train_x, Y)
     final_net_input.append(lr.final_net_input(test_x))
 
@@ -110,12 +126,29 @@ for i in range(len(test_y)):
             c = _class
     final.append(c)
 
-print(final)
+
 
 # uncommand the following 2 lines to show the final prediction class and it true class
-#print(np.array(final))
-#print(np.array(test_y['Species'].to_list()))
+"""
+#print(final)
+print("Predicted result:")
+for unique in np.unique(final):
+    count = 0
+    for element in range(len(final)):
+        if final[element] == unique:
+            count += 1
+    print("# of %d: %d"%(unique,count))
+print("----------------------")
+#print(test_y)
+print("True result:")
+for unique in np.unique(test_y):
+    count = 0
+    for element in range(len(test_y)):
+        if test_y[element] == unique:
+            count += 1
+    print("# of %d: %d"%(unique,count))
+"""
 
-#total = np.array(final).size
-#correct = np.count_nonzero(np.array(final) == np.array(test_y['Species'].to_list()))
-#print("result: %d / %d"%(correct, total))
+total = len(final)
+correct = np.count_nonzero(np.array(final) == np.array(test_y))
+print("result: %d / %d"%(correct, total))

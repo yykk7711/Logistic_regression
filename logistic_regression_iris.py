@@ -27,7 +27,7 @@ sc.fit(test_x)
 test_x = sc.transform(test_x)
 
 class LogisticRegression(object):
-    def __init__(self, eta = 1, n_iter = 10, random_state = 1):
+    def __init__(self, eta = 0.1, n_iter = 1000, random_state = 1): # best performance: eta = 0.01, n_iter = 1000, random_state = 1
         self.eta = eta
         self.n_iter = n_iter
         self.random_state = random_state
@@ -46,13 +46,12 @@ class LogisticRegression(object):
             net_input = self.net_input(X)
             output = self.activation(net_input) #.reshape(100,1)
             errors = Y_array - output
-            print(X.T.shape)
-            print(errors.shape)
             self.w_[1:] += self.eta * X.T.dot(errors)  # shape of (4,1)
             self.w_[0] += self.eta * errors.sum()
             # update cost
             cost = (-Y_array.dot(np.log(output)) - ((1 - Y_array).dot(np.log(1 - output))))
             self.cost_.append(cost)
+
         return self
 
     def net_input(self,X):
@@ -135,9 +134,10 @@ for i in range(len(NI0)):
         final.append(1)
     else:
         final.append(2)
+
 # uncommand the following 2 lines to show the final prediction class and it true class
-print(np.array(final))
-print(np.array(test_y['Species'].to_list()))
+#print(np.array(final))
+#print(np.array(test_y['Species'].to_list()))
 total = np.array(final).size
 correct = np.count_nonzero(np.array(final) == np.array(test_y['Species'].to_list()))
 print("result: %d / %d"%(correct, total))
